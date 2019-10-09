@@ -34,7 +34,7 @@ namespace ITBeepAngular.Controllers.api
         [HttpPost]
         public  IActionResult SendEmail([FromBody] EmailDto model)
         {
-            return Ok(new { code = "200", result = "email has been sent." });
+            return Ok(new { code = "200", result = "email has been sent" });
         }
     }
 }

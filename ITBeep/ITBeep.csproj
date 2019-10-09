@@ -189,6 +189,7 @@
     <Content Include="lib\twitter-bootstrap\js\bootstrap.min.js.map" />
     <Content Include="lib\jquery\jquery.min.map" />
     <Content Include="lib\jquery\jquery.slim.min.map" />
+    <Content Include="ITBeepMVC.bak" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="lib\twitter-bootstrap\css\bootstrap-grid.css" />
     <Content Include="lib\twitter-bootstrap\css\bootstrap-grid.min.css" />

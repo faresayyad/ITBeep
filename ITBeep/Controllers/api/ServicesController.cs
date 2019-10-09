@@ -29,7 +29,7 @@ namespace ITBeep.Controllers.api
         public IHttpActionResult SendEmail([FromBody] EmailContentDto model )
         {
             Shared.SendEmailMsg(model);
-            return Ok(new { code = "200", result = "email has been sent." });
+            return Ok(new { code = "200", result = "email has been sent" });
         }
 
 

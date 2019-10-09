@@ -1,0 +1,193 @@
+﻿@model ITBeep.Models.HomeIndex.PersonInfo
+@{
+    ViewBag.Title = "Information Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<section class="p-3 mt-5">
+    @using (Html.BeginForm("InformationForm", "Home", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Mobile, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Mobile, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <input type="text" hidden id="seriveTypeInput" name="seriveType">
+        <input type="text" hidden id="intrestedInInput" name="intrestedIn">
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Send" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+    }
+
+
+    <div class="modal" tabindex="-1" role="dialog" id="ServiceModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Services</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="user-message" class="text-warning"></p>
+                    <p>Please choose a service</p>
+                    <div id="serviceList">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" id="btnServiceSubmit" class="btn btn-primary">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" tabindex="-1" role="dialog" id="emailScheduleModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Email subscription schedule </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>ما هو مدى رضاك عن الخدمة</p>
+                    <div id="emailScheduleList">
+                        <input type="button" class="btn btn-primary m-1 email-sch" value="مقبول" />
+                        <input type="button" class="btn btn-primary m-1 email-sch" value="جيد" />
+                        <input type="button" class="btn btn-primary m-1 email-sch" value="ممتاز" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button" id="btnServiceSubmit" class="btn btn-primary">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+        <script>
+            let div = $("#serviceList");
+            let btnServiceSubmti = $('#btnServiceSubmti');
+            let serviceSelectedValue = "";
+            let scheduleSelectedValue = "";
+            let userMsg = $('#user-message');
+            $('#btnSend').on('click', function (e) {
+                e.preventDefault();
+
+                let URL = '/api/GetServices';
+                $.ajax({
+                    url: URL,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.code == "200") {
+                            // Section Services
+
+                            div.empty(); // Empty prev elements.
+                            let arr = data.result;
+                            //console.log(arr);
+                            $.each(arr, function (index, value) {
+                                //console.log(value.Id + ' ' + value.ServiceName);
+                                div.append("<input type='button' class='btn btn-primary m-1 pre-select-service' value=" + value.ServiceName +
+                                    " id=" + value.ServiceName + index + "/>");
+                            });
+                            $('#ServiceModal').modal('show');
+
+                            // Get service user selction.
+                            $('input:button.pre-select-service').on('click', function () {
+                                let selectedVal = $(this).val();
+                                serviceSelectedValue = selectedVal;
+                                userMsg.text("Please press next");
+                            });
+
+
+                            // Submit service.
+                            $('#btnServiceSubmit').on('click', function () {
+                                if (serviceSelectedValue !== "") {
+                                    $('#ServiceModal').modal('hide');
+                                    $('#emailScheduleModal').modal('show');
+                                    //console.log(serviceSelectedValue);
+
+                                }
+                                else {
+                                    userMsg.text("You should choose service first.");
+                                }
+                            });
+
+                            // Submit schedule.
+                            $('input:button.pre-select-service').on('click', function () {
+                                let selectedVal = $(this).val();
+                                serviceSelectedValue = selectedVal;
+                                userMsg.text("Please press next");
+                            });
+
+                            // Get schedule user selection.
+                            $('input:button.email-sch').on('click', function () {
+                                let selectedVal = $(this).val();
+                                scheduleSelectedValue = selectedVal;
+
+
+                                // ajax call to server.
+
+                                // prepare object.
+                                let username = $('#Name').val();
+                                let email = $('#Email').val();
+                                let mobile = $('#Mobile').val();
+                                let infoObjet = {
+                                    username: username, email: email, mobile: mobile, serviceType: serviceSelectedValue,
+                                    schedule: scheduleSelectedValue
+                                };
+                                console.log(infoObjet);
+                                $('#seriveType').val(serviceSelectedValue);
+                                $('#intrestedInInput').val(scheduleSelectedValue);
+                                $('#emailScheduleModal').modal('hide');
+
+                            });
+
+                            // End if statement.
+                        }
+                    },
+                    error: function () {
+                        console.error('Error');
+                    }
+                });
+
+            });
+        </script>
+    }
+
+</section>
